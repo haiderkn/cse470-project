@@ -16,6 +16,7 @@ export default function NavBar() {
       <div className="nav-links">
         {user ? (
           <>
+            <Link to="/video-call">Video call</Link>
             <span className="muted">Hi, {user.name}</span>
             <button className="btn btn-ghost" onClick={handleLogout}>Logout</button>
           </>
