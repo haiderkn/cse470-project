@@ -1,5 +1,3 @@
-"""Controllers: receive the request, call a service, return a view.
+from app.controllers import auth_controller, owner_controller, pet_controller, task_controller
 
-No business logic and no database code here. Paths are NOT declared here;
-they are wired to these functions in app/routes/.
-"""
+__all__ = ["auth_controller", "owner_controller", "pet_controller", "task_controller"]

@@ -34,6 +34,15 @@ export function AuthProvider({ children }) {
     setUser(profile);
   }
 
+  function updateUser(updatedFields) {
+    setUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, ...updatedFields };
+      localStorage.setItem(USER_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }
+
   async function login(email, password) {
     const auth = await api('/api/auth/login', {
       method: 'POST',
@@ -58,11 +67,11 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
-  const value = { user, loading, login, register, logout };
+  const value = { user, loading, login, register, logout, updateUser };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Convenience hook: const { user, login, logout } = useAuth();
+// Convenience hook: const { user, login, logout, updateUser } = useAuth();
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
