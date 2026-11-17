@@ -1,3 +1,7 @@
+from app.core.database import SessionLocal
+from app.models.training_video import TrainingVideo, TrainingVideoCategory
+
+
 def register(client, email="ada@example.com"):
     r = client.post("/api/auth/register", json={"name": "Ada", "email": email, "password": "secret123"})
     assert r.status_code == 201, r.text
@@ -47,3 +51,76 @@ def test_task_crud_and_ownership(client):
 
     assert client.delete(f"/api/tasks/{task['id']}", headers=h).status_code == 204
     assert client.get(f"/api/tasks/{task['id']}", headers=h).status_code == 404
+
+
+def test_training_video_filters_and_favorite_toggle(client):
+    headers = register(client)
+    with SessionLocal() as db:
+        video = TrainingVideo(
+            title="Basic obedience",
+            description="A beginner lesson",
+            category=TrainingVideoCategory.OBEDIENCE,
+            youtube_video_id="abc123",
+            duration_minutes=12,
+        )
+        db.add(video)
+        db.commit()
+        db.refresh(video)
+        video_id = video.id
+
+    listed = client.get(
+        "/api/videos",
+        params={"category": "Obedience", "search": "beginner"},
+        headers=headers,
+    )
+    assert listed.status_code == 200 and [item["id"] for item in listed.json()] == [video_id]
+
+    favorited = client.post(f"/api/videos/{video_id}/favorite", headers=headers)
+    assert favorited.status_code == 200 and favorited.json()["favorited"] is True
+    assert [item["id"] for item in client.get("/api/videos/favorites", headers=headers).json()] == [
+        video_id
+    ]
+
+    unfavorited = client.post(f"/api/videos/{video_id}/favorite", headers=headers)
+    assert unfavorited.status_code == 200 and unfavorited.json()["favorited"] is False
+    assert client.get("/api/videos/favorites", headers=headers).json() == []
+
+
+def test_community_medical_warning_answers_and_vote_toggle(client):
+    headers = register(client)
+    created = client.post(
+        "/api/community/posts",
+        json={
+            "title": "My dog is lethargic",
+            "content": "Should I be concerned?",
+            "category": "Health",
+        },
+        headers=headers,
+    )
+    assert created.status_code == 201 and created.json()["hasMedicalWarning"] is True
+    post_id = created.json()["id"]
+
+    detail = client.get(f"/api/community/posts/{post_id}", headers=headers)
+    assert detail.status_code == 200
+    assert detail.json()["post"]["id"] == post_id and detail.json()["answers"] == []
+
+    answer = client.post(
+        f"/api/community/posts/{post_id}/answers",
+        json={"content": "Please contact your veterinarian."},
+        headers=headers,
+    )
+    assert answer.status_code == 201
+    assert len(client.get(f"/api/community/posts/{post_id}", headers=headers).json()["answers"]) == 1
+
+    upvote = client.post(
+        f"/api/community/posts/{post_id}/vote", json={"voteType": 1}, headers=headers
+    )
+    assert upvote.json()["voteType"] == 1 and upvote.json()["upvotesCount"] == 1
+    downvote = client.post(
+        f"/api/community/posts/{post_id}/vote", json={"voteType": -1}, headers=headers
+    )
+    assert downvote.json()["voteType"] == -1 and downvote.json()["upvotesCount"] == 0
+    removed = client.post(
+        f"/api/community/posts/{post_id}/vote", json={"voteType": -1}, headers=headers
+    )
+    assert removed.json()["voteType"] is None and removed.json()["upvotesCount"] == 0
