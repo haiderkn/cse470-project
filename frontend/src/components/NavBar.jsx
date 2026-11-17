@@ -12,12 +12,18 @@ export default function NavBar() {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="brand">Boilerplate</Link>
+      <Link to="/" className="brand">
+        🐾 PetCare <span className="brand-accent">Hub</span>
+      </Link>
       <div className="nav-links">
         {user ? (
           <>
-            <span className="muted">Hi, {user.name}</span>
-            <button className="btn btn-ghost" onClick={handleLogout}>Logout</button>
+            <Link to="/" className="nav-item">🐾 Pets & Profile</Link>
+            <Link to="/tasks" className="nav-item">📋 Tasks</Link>
+            <span className="user-pill">👤 {user.name}</span>
+            <button className="btn btn-ghost btn-sm" onClick={handleLogout}>
+              Logout
+            </button>
           </>
         ) : (
           <>

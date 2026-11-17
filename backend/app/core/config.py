@@ -11,8 +11,8 @@ class Settings(BaseSettings):
 
     app_name: str = "FastAPI + React Starter"
 
-    # ----- Database -----
-    database_url: str = "mysql+pymysql://root:root@localhost:3306/app_db"
+    # ----- Database (default SQLite for instant setup; override with PostgreSQL in .env) -----
+    database_url: str = "sqlite:///./app.db"
     echo_sql: bool = False
 
     # ----- JWT (used by core/security.py) -----
