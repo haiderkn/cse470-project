@@ -17,6 +17,8 @@ export default function NavBar() {
         {user ? (
           <>
             <span className="muted">Hi, {user.name}</span>
+            <Link to="/videos">Training videos</Link>
+            <Link to="/community">Community Q&amp;A</Link>
             <button className="btn btn-ghost" onClick={handleLogout}>Logout</button>
           </>
         ) : (

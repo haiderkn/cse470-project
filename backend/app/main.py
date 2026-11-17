@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import init_db
 from app.core.exceptions import register_exception_handlers
-from app.routes import api_router
+from app.routes import api_router, community_routes, paths, training_video_routes
 
 
 @asynccontextmanager
@@ -32,6 +32,8 @@ app.add_middleware(
 
 register_exception_handlers(app)
 app.include_router(api_router)
+app.include_router(training_video_routes.router, prefix=paths.API_PREFIX)
+app.include_router(community_routes.router, prefix=paths.API_PREFIX)
 
 
 @app.get("/health", tags=["Health"])

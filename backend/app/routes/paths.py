@@ -10,3 +10,9 @@ LOGIN = "/login"        # POST /api/auth/login
 # ---- Tasks (base: /api/tasks) ----
 TASKS = "/tasks"
 TASK_BY_ID = "/{task_id}"  # GET/PUT/DELETE /api/tasks/{task_id}
+
+# ---- Training videos (base: /api/videos) ----
+VIDEOS = "/videos"
+
+# ---- Community Q&A (base: /api/community) ----
+COMMUNITY = "/community"
